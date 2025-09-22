@@ -57,3 +57,45 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          # known_hosts is optional but recommended (add DEPLOY_KNOWN_HOSTS secret)
+          # known_hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          script: |
+            set -e
+            IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            echo "Deploying $IMAGE on $(hostname)"
+
+            # (Opcional) login to Docker Hub if image is private
+            if [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
+              echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            fi
+
+            # Pull new image
+            docker pull "$IMAGE"
+
+            # Stop & remove old container (if exists)
+            docker stop demo-micro || true
+            docker rm demo-micro || true
+
+            # Run new container (ajusta variables/volumes/ENV según necesites)
+            docker run -d \
+              --name demo-micro \
+              --restart=always \
+              -p 8080:8080 \
+              "$IMAGE"
+
+            # Cleanup old images
+            docker image prune -f || true
+
+            echo "Deployed $IMAGE successfully"
