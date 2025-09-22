@@ -28,11 +28,7 @@ jobs:
           cache: maven
 
       - name: Build jar (Maven)
-<<<<<<< HEAD
-        run: mvn -B -DskipTests clean package
-=======
         run: mvn -B -DskipTests clean package spring-boot:repackage
->>>>>>> d3fa186 (fix)
         working-directory: demo-micro
 
       - name: Set up Docker Buildx
