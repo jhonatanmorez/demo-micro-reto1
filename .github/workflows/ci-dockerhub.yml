@@ -29,6 +29,7 @@ jobs:
 
       - name: Build jar (Maven)
         run: mvn -B -DskipTests clean package
+        working-directory: demo-micro
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
