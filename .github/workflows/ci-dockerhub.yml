@@ -1,4 +1,4 @@
-name: CI - Build & Push Docker (Docker Hub)
+name: CI/CD - Build & Push Docker (Docker Hub)
 
 on:
   push:
