@@ -13,6 +13,6 @@ public class App {
 
     @GetMapping("/")
     public String hello() {
-        return "Hello World desde Docker + GitHub Actions! CICD completo Jorge More";
+        return "Docker + GitHub Actions! CICD completo -  Jorge More";
     }
 }
